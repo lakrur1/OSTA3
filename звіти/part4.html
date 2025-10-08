@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Етап 4 - Порівняльний аналіз</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14pt;
+            line-height: 1.5;
+            max-width: 210mm;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        h3 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        p {
+            text-align: justify;
+            margin-bottom: 10px;
+        }
+        .student {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        ul {
+            margin-left: 40px;
+            margin-bottom: 10px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 12pt;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Індивідуальне завдання етап 4 звіт<br>Порівняльний аналіз розробки</h1>
+
+    <div class="student">
+        <strong>Виконавець:</strong> Єгор Крупєй
+    </div>
+
+    <h2>Мета роботи</h2>
+    <p>Проведення порівняльного аналізу десктоп-версії (Electron) та веб-версії (REST API) системи управління файлами. Виділення спільних елементів, відмінностей, переваг та недоліків кожного підходу. Обґрунтування оптимальної технології.</p>
+
+    <h2>1. Порівняльна таблиця</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Критерій</th>
+                <th>Десктоп-версія (Electron)</th>
+                <th>Веб-версія (REST API)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Платформа</td>
+                <td>Windows, macOS, Linux</td>
+                <td>Будь-який браузер</td>
+            </tr>
+            <tr>
+                <td>Розмір додатку</td>
+                <td>~150-200 MB (з Chromium)</td>
+                <td>~2-5 MB (HTML/CSS/JS)</td>
+            </tr>
+            <tr>
+                <td>Установка</td>
+                <td>Потрібна інсталяція</td>
+                <td>Не потрібна</td>
+            </tr>
+            <tr>
+                <td>Оновлення</td>
+                <td>Потребує переінсталяції</td>
+                <td>Автоматичне (reload)</td>
+            </tr>
+            <tr>
+                <td>Доступ до файлів</td>
+                <td>Повний (Node.js fs API)</td>
+                <td>Обмежений (File API)</td>
+            </tr>
+            <tr>
+                <td>Синхронізація папок</td>
+                <td>Повна двостороння</td>
+                <td>Обмежена (manual)</td>
+            </tr>
+            <tr>
+                <td>Офлайн режим</td>
+                <td>Можливий (з обмеженнями)</td>
+                <td>Неможливий</td>
+            </tr>
+            <tr>
+                <td>Безпека</td>
+                <td>Більше атак (native access)</td>
+                <td>Sandbox браузера</td>
+            </tr>
+            <tr>
+                <td>Розробка</td>
+                <td>Складніша (2 процеси)</td>
+                <td>Простіша (1 процес)</td>
+            </tr>
+            <tr>
+                <td>Налагодження</td>
+                <td>DevTools + Node.js debugger</td>
+                <td>Browser DevTools</td>
+            </tr>
+            <tr>
+                <td>Продуктивність</td>
+                <td>Вища (native)</td>
+                <td>Залежить від браузера</td>
+            </tr>
+            <tr>
+                <td>Вартість розробки</td>
+                <td>Вища</td>
+                <td>Нижча</td>
+            </tr>
+            <tr>
+                <td>Підтримка</td>
+                <td>Складніша (різні OS)</td>
+                <td>Простіша (браузери)</td>
+            </tr>
+            <tr>
+                <td>Розповсюдження</td>
+                <td>Магазини додатків / сайт</td>
+                <td>URL</td>
+            </tr>
+            <tr>
+                <td>Мобільні пристрої</td>
+                <td>Не підтримується</td>
+                <td>Адаптивний дизайн</td>
+            </tr>
+            <tr>
+                <td>Backend</td>
+                <td>Django REST API</td>
+                <td>Django REST API</td>
+            </tr>
+            <tr>
+                <td>База даних</td>
+                <td>PostgreSQL</td>
+                <td>PostgreSQL</td>
+            </tr>
+            <tr>
+                <td>Аутентифікація</td>
+                <td>JWT</td>
+                <td>JWT</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>2. Спільні елементи</h2>
+
+    <h3>2.1. Backend архітектура</h3>
+    <ul>
+        <li>Однаковий Django backend з REST API;</li>
+        <li>PostgreSQL база даних;</li>
+        <li>JWT токени для аутентифікації;</li>
+        <li>Ідентичні models (User, FileMetadata);</li>
+        <li>Однакові endpoints та бізнес-логіка.</li>
+    </ul>
+
+    <h3>2.2. Frontend код</h3>
+    <ul>
+        <li>80% коду спільний (auth.js, fileList.js, fileViewer.js, api.js);</li>
+        <li>Однакова логіка роботи з API;</li>
+        <li>Ідентичний UI/UX дизайн;</li>
+        <li>Спільні CSS стилі.</li>
+    </ul>
+
+    <h3>2.3. Функціонал</h3>
+    <ul>
+        <li>Аутентифікація та авторизація;</li>
+        <li>Завантаження, перегляд, редагування, видалення файлів;</li>
+        <li>Сортування за назвою (варіант 06);</li>
+        <li>Фільтрація за типами .cpp та .png (варіант 06);</li>
+        <li>Перегляд .txt та .jpg файлів;</li>
+        <li>Drag-and-drop завантаження;</li>
+        <li>Спільний робочий простір.</li>
+    </ul>
+
+    <h2>3. Відмінності</h2>
+
+    <h3>3.1. Архітектурні</h3>
+    <p><strong>Десктоп:</strong></p>
+    <ul>
+        <li>Electron main process + renderer process;</li>
+        <li>Node.js integration через preload bridge;</li>
+        <li>Локальне зберігання даних можливе;</li>
+        <li>Прямий доступ до OS APIs.</li>
+    </ul>
+
+    <p><strong>Веб:</strong></p>
+    <ul>
+        <li>Single page application;</li>
+        <li>Sandbox браузера;</li>
+        <li>Всі дані на сервері;</li>
+        <li>Обмеження браузерних APIs.</li>
+    </ul>
+
+    <h3>3.2. Функціональні</h3>
+    <p><strong>Десктоп:</strong></p>
+    <ul>
+        <li>Синхронізація локальних папок з сервером;</li>
+        <li>Запис файлів напряму на диск;</li>
+        <li>Читання структури директорій;</li>
+        <li>Можливість offline кешування.</li>
+    </ul>
+
+    <p><strong>Веб:</strong></p>
+    <ul>
+        <li>Лише manual завантаження/вивантаження;</li>
+        <li>Завантаження через browser download;</li>
+        <li>Обмежений File API;</li>
+        <li>Завжди online.</li>
+    </ul>
+
+    <h3>3.3. Deployment</h3>
+    <p><strong>Десктоп:</strong></p>
+    <ul>
+        <li>Збірка окремих інсталяторів для кожної OS;</li>
+        <li>Розповсюдження через сайт або магазини;</li>
+        <li>Version management складніший;</li>
+        <li>Electron builder для пакування.</li>
+    </ul>
+
+    <p><strong>Веб:</strong></p>
+    <ul>
+        <li>Один deployment на сервері;</li>
+        <li>Доступ через URL;</li>
+        <li>Простіше оновлювати;</li>
+        <li>Django dev server.</li>
+    </ul>
+
+    <h2>4. Переваги та недоліки</h2>
+
+    <h3>4.1. Десктоп-версія (Electron)</h3>
+
+    <p><strong>Переваги:</strong></p>
+    <ul>
+        <li>+ Повний доступ до файлової системи;</li>
+        <li>+ Синхронізація папок автоматична;</li>
+        <li>+ Краща продуктивність для heavy операцій;</li>
+        <li>+ Можливість offline роботи;</li>
+        <li>+ Native look and feel;</li>
+        <li>+ Більше контролю над середовищем;</li>
+        <li>+ Безпосередній доступ до OS APIs.</li>
+    </ul>
+
+    <p><strong>Недоліки:</strong></p>
+    <ul>
+        <li>- Великий розмір (~150-200 MB);</li>
+        <li>- Складніша розробка (main + renderer);</li>
+        <li>- Потребує інсталяції;</li>
+        <li>- Оновлення вимагають дій користувача;</li>
+        <li>- Підтримка різних OS версій;</li>
+        <li>- Більша поверхня атаки (native access);</li>
+        <li>- Вища вартість розробки та підтримки.</li>
+    </ul>
+
+    <h3>4.2. Веб-версія (REST API)</h3>
+
+    <p><strong>Переваги:</strong></p>
+    <ul>
+        <li>+ Універсальний доступ з будь-якого пристрою;</li>
+        <li>+ Малий розмір (2-5 MB);</li>
+        <li>+ Не потребує інсталяції;</li>
+        <li>+ Автоматичні оновлення;</li>
+        <li>+ Простіша розробка та підтримка;</li>
+        <li>+ Sandbox безпека браузера;</li>
+        <li>+ Краща масштабованість;</li>
+        <li>+ Нижча вартість.</li>
+    </ul>
+
+    <p><strong>Недоліки:</strong></p>
+    <ul>
+        <li>- Обмежений доступ до файлової системи;</li>
+        <li>- Немає повноцінної синхронізації;</li>
+        <li>- Залежність від інтернету;</li>
+        <li>- Обмеження браузерних APIs;</li>
+        <li>- Менше контролю над середовищем;</li>
+        <li>- Може бути повільніше на слабких з'єднаннях.</li>
+    </ul>
+
+    <h2>5. Обґрунтування оптимальної технології</h2>
+
+    <h3>5.1. Гібридний підхід (рекомендація)</h3>
+
+    <p>Оптимальне рішення – підтримувати обидві версії:</p>
+
+    <p><strong>Веб-версія як основна:</strong></p>
+    <ul>
+        <li>Для більшості користувачів достатньо базового функціоналу;</li>
+        <li>80-90% use cases покриваються веб-версією;</li>
+        <li>Нижча вартість підтримки;</li>
+        <li>Більша аудиторія (доступ з мобільних).</li>
+    </ul>
+
+    <p><strong>Десктоп-версія як premium:</strong></p>
+    <ul>
+        <li>Для power users що потребують синхронізації;</li>
+        <li>Для користувачів з поганим інтернетом;</li>
+        <li>Для корпоративних клієнтів з особливими вимогами.</li>
+    </ul>
+
+    <p><strong>Переваги гібриду:</strong></p>
+    <ul>
+        <li>Спільний backend (80% коду);</li>
+        <li>Спільний frontend core (70% коду);</li>
+        <li>Максимальне покриття аудиторії;</li>
+        <li>Гнучкість у виборі для користувача.</li>
+    </ul>
+
+    <h3>5.2. Якщо вибирати одну технологію</h3>
+
+    <p>Для даного проекту (file manager) – <strong>ДЕСКТОП</strong></p>
+
+    <p><strong>Обґрунтування:</strong></p>
+    <ol>
+        <li>Основна цінність – робота з файлами та синхронізація;</li>
+        <li>Веб-версія не може повноцінно реалізувати синхронізацію папок;</li>
+        <li>Користувачі file manager очікують native функціонал;</li>
+        <li>Конкуренти (Dropbox, Google Drive) мають десктоп клієнти.</li>
+    </ol>
+
+    <p><strong>Винятки (коли обрати веб):</strong></p>
+    <ul>
+        <li>Бюджет обмежений;</li>
+        <li>Потрібен швидкий launch;</li>
+        <li>Пріоритет – максимальна аудиторія;</li>
+        <li>Синхронізація не критична.</li>
+    </ul>
+
+    <h3>5.3. Майбутні покращення</h3>
+
+    <p><strong>Для обох версій:</strong></p>
+    <ul>
+        <li>Додати bcrypt замість SHA256;</li>
+        <li>Реалізувати refresh tokens;</li>
+        <li>Додати rate limiting;</li>
+        <li>Покращити error handling;</li>
+        <li>Додати logging та monitoring.</li>
+    </ul>
+
+    <p><strong>Для десктопу:</strong></p>
+    <ul>
+        <li>Auto-update mechanism;</li>
+        <li>Notifications для синхронізації;</li>
+        <li>Tray icon;</li>
+        <li>Keyboard shortcuts.</li>
+    </ul>
+
+    <p><strong>Для веб:</strong></p>
+    <ul>
+        <li>Progressive Web App (PWA);</li>
+        <li>Service Workers для offline;</li>
+        <li>WebSocket для real-time updates;</li>
+        <li>Better mobile UX.</li>
+    </ul>
+
+    <h2>Висновки</h2>
+    <p>Проведено детальний порівняльний аналіз десктоп та веб версій системи управління файлами. Обидві версії мають спільний backend (Django REST API) та більшість frontend коду, що знижує вартість розробки. Десктоп-версія на Electron забезпечує повний функціонал з синхронізацією папок, але вимагає більше ресурсів. Веб-версія надає універсальний доступ з мінімальними вимогами, але обмежена в роботі з файловою системою.</p>
+
+    <p>Рекомендований підхід – гібридний: веб-версія як основна для широкої аудиторії, десктоп-версія для power users. Якщо вибирати одну технологію для file manager, пріоритет слід віддати десктопу через критичність функції синхронізації папок.</p>
+
+    <p>Обрана архітектура з REST API забезпечує гнучкість, можливість легко додати мобільні додатки та інтеграцію з третіми сервісами. Спільний backend для обох версій знижує вартість підтримки та забезпечує консистентність даних.</p>
+
+</body>
+</html>

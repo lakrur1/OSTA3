@@ -477,24 +477,31 @@ class SharedWorkspaceTests(BaseTestCase):
 
         self.assertEqual(delete_resp2.status_code, 204)
 
-    def test_only_owner_can_edit(self):
-        """Test 11: Only file owner can edit their files"""
+    def test_anyone_can_edit(self):
+        """Test 11: Anyone can edit any file in shared workspace"""
         # User1 uploads file
-        txt_file = SimpleUploadedFile('editable.txt', b'original', content_type='text/plain')
+        txt_file = SimpleUploadedFile('shared_edit.txt', b'original', content_type='text/plain')
         upload_resp = self.client.post('/api/files',
                                        {'file': txt_file},
                                        HTTP_AUTHORIZATION=f'Bearer {self.token1}'
                                        )
         file_id = upload_resp.json()['file_id']
 
-        # User2 tries to edit (without file, but ownership checked first)
-        edit_resp = self.client.put(f'/api/files/{file_id}',
-                                    {},
-                                    HTTP_AUTHORIZATION=f'Bearer {self.token2}'
-                                    )
+        # Verify uploader
+        self.assertEqual(upload_resp.json()['uploader_name'], 'user1')
+        self.assertEqual(upload_resp.json()['editor_name'], 'user1')
 
-        # Should be denied
-        self.assertEqual(edit_resp.status_code, 403)
+        # Test that User2 trying to edit without file gets 400 (not 403)
+        edit_resp_no_file = self.client.put(f'/api/files/{file_id}',
+                                            {},
+                                            HTTP_AUTHORIZATION=f'Bearer {self.token2}'
+                                            )
+
+        # This proves ownership check is NOT happening
+        self.assertEqual(edit_resp_no_file.status_code, 400)
+
+        # Verify the error message is about missing file, not access
+        self.assertIn('No file provided', edit_resp_no_file.json()['error'])
 
     def test_edit_updates_editor_name(self):
         """Test 12: Editing file updates editor information"""

@@ -242,13 +242,13 @@ class FileListUI {
             if (this.visibleColumns.editor) bodyHTML += `<td>${file.editor_name}</td>`;
             bodyHTML += `<td class="file-actions">`;
 
-            // View and Download - available to everyone
+            // View, Edit, Download - available to everyone
             bodyHTML += `<button class="btn-action btn-view" data-id="${file.file_id}">View</button>`;
+            bodyHTML += `<button class="btn-action btn-edit" data-id="${file.file_id}" data-type="${file.type}">Edit</button>`;
             bodyHTML += `<button class="btn-action btn-download" data-id="${file.file_id}" data-name="${file.name}">Download</button>`;
 
-            // Edit and Delete - only for owner
+            // Delete - only for owner
             if (isOwner) {
-                bodyHTML += `<button class="btn-action btn-edit" data-id="${file.file_id}" data-type="${file.type}">Edit</button>`;
                 bodyHTML += `<button class="btn-action btn-delete" data-id="${file.file_id}">Delete</button>`;
             }
 

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Етап 1 - UML-специфікація</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14pt;
+            line-height: 1.5;
+            max-width: 210mm;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        h3 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        p {
+            text-align: justify;
+            margin-bottom: 10px;
+        }
+        .student {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        ul {
+            margin-left: 40px;
+            margin-bottom: 10px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        img {
+            display: block;
+            max-width: 100%;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Індивідуальне завдання етап 1 звіт<br>UML-специфікація</h1>
+
+    <div class="student">
+        <strong>Виконавець:</strong> Єгор Крупєй
+    </div>
+
+    <h2>Мета роботи</h2>
+    <p>Розробка UML-діаграм для системи управління віддаленою папкою з файлами (варіант 06). Система реалізує функціонал файлового менеджера з авторизацією, переглядом файлів типу .txt та .jpg, сортуванням за назвою та фільтрацією файлів типу .cpp і .png.</p>
+
+    <h2>1. Діаграма прецедентів (Use Case Diagram)</h2>
+    <p>Діаграма відображає основних акторів системи та їх взаємодію з функціональними можливостями:</p>
+    <ul>
+        <li><strong>Desktop User</strong> – має доступ до синхронізації локальної папки, перегляду файлів, сортування та фільтрації;</li>
+        <li><strong>Web User</strong> – працює через браузер з обмеженим функціоналом (без синхронізації);</li>
+        <li><strong>Прецеденти:</strong> Authentication (Register Account, Login), File Management (Upload Files, View File Content, Edit File, Download File, Delete File), Display & Filtering (Sort by Name Asc/Desc, Filter by Type .cpp/.png, Toggle Column Visibility), Desktop Sync (Sync Local Folder Upload/Download).</li>
+    </ul>
+    <img src="діаграми/1.png" alt="Use Case Diagram">
+
+    <h2>2. Діаграми класів (Class Diagrams)</h2>
+
+    <h3>2.1. Загальна діаграма класів</h3>
+    <p>Відображає основну архітектуру системи з розподілом на сервісні, модельні та UI компоненти:</p>
+    <ul>
+        <li><strong>AuthService</strong> – управління реєстрацією, входом та валідацією токенів;</li>
+        <li><strong>User</strong> – модель користувача (user_id, username, password, email, created_at);</li>
+        <li><strong>FileService</strong> – операції з файлами (upload, download, delete, edit, list);</li>
+        <li><strong>FileMetadata</strong> – модель метаданих файлу (file_id, name, type, size, file_path, created_date, modified_date, uploader_id/name, editor_id/name);</li>
+        <li><strong>SortFilterService</strong> – сортування за назвою та фільтрація за типами;</li>
+        <li><strong>UI компоненти</strong> – FileListUI, FileViewer, SyncUI;</li>
+        <li><strong>API</strong> – уніфікований інтерфейс для взаємодії з сервером.</li>
+    </ul>
+    <img src="діаграми/2.png" alt="Class Diagram">
+
+    <h3>2.2. VOPC діаграма класів</h3>
+    <p>Детальна діаграма класів з акцентом на взаємодію компонентів при виконанні операцій з файлами. Показує повний ланцюжок від UI до бази даних: FileListUI → API → FileAPI → FileController → FileService → FileMetadataRepository → FileMetadata. Відображає методи кожного класу та типи даних, що передаються. Ілюструє патерн Repository для роботи з даними.</p>
+    <img src="діаграми/3.png" alt="VOPC Class Diagram">
+
+    <h2>3. Діаграма активності (Activity Diagram)</h2>
+    <p>Описує процес завантаження файлу користувачем з усіма перевірками та можливими шляхами виконання:</p>
+    <ul>
+        <li>Перевірка аутентифікації користувача;</li>
+        <li>Валідація типу файлу;</li>
+        <li>Перевірка на дублювання імені файлу;</li>
+        <li>Створення FormData та відправка POST-запиту;</li>
+        <li>Збереження фізичного файлу та створення запису в базі даних;</li>
+        <li>Оновлення списку файлів в UI;</li>
+        <li>Обробка помилок на кожному етапі.</li>
+    </ul>
+    <img src="діаграми/4.png" alt="Activity Diagram">
+
+    <h2>4. Діаграми взаємодії (Sequence Diagrams)</h2>
+
+    <h3>4.1. Діаграма послідовності: Аутентифікація</h3>
+    <p>Демонструє взаємодію компонентів при вході користувача в систему: User → AuthUI → API → Controller → Service → Database. Включає хешування пароля (SHA256), генерацію JWT токена з user_id та username, збереження в localStorage та перенаправлення до File Manager. Обробляє помилку 401 Unauthorized при невалідних даних.</p>
+    <img src="діаграми/5.png" alt="Sequence Diagram - Login">
+
+    <h3>4.2. Діаграма послідовності: Редагування файлу</h3>
+    <p>Показує процес редагування існуючого файлу: User → FileListUI → FileInput → API → Controller → Service. Включає отримання метаданих файлу, перевірку прав власності (лише власник може видаляти, але редагувати можуть усі у спільному робочому просторі), валідацію типу файлу, заміну фізичного файлу та оновлення метаданих (editor_id, editor_name, modified_date).</p>
+    <img src="діаграми/6.png" alt="Sequence Diagram - Edit File">
+
+    <h2>5. Діаграма станів (State Diagram)</h2>
+    <p>Описує життєвий цикл файлу в системі:</p>
+    <ul>
+        <li><strong>Selected</strong> – файл обрано користувачем;</li>
+        <li><strong>Validating</strong> – перевірка типу та імені файлу;</li>
+        <li><strong>Uploading</strong> – процес завантаження на сервер;</li>
+        <li><strong>Stored</strong> – файл збережено в системі, доступний для операцій;</li>
+        <li><strong>Viewing</strong> – перегляд вмісту файлу (лише для .txt та .jpg);</li>
+        <li><strong>Downloading</strong> – завантаження файлу користувачем;</li>
+        <li><strong>Deleting</strong> – процес видалення (лише власником);</li>
+        <li><strong>Editing</strong> – редагування файлу з оновленням editor_name;</li>
+        <li><strong>ValidationFailed, UploadFailed, DeleteFailed, EditFailed</strong> – стани помилок.</li>
+    </ul>
+    <p>Діаграма показує, що modified_date оновлюється при редагуванні, а editor_id та editor_name змінюються на поточного користувача.</p>
+    <img src="діаграми/7.png" alt="State Diagram">
+
+    <h2>6. Діаграма компонентів (Component Diagram)</h2>
+    <p>Відображає архітектуру системи на рівні компонентів:</p>
+    <ul>
+        <li><strong>Client Layer:</strong> Desktop Components (main.js, preload.js в Electron), Web App Components (HTML/CSS, JS Modules: app.js, auth.js, fileList.js);</li>
+        <li><strong>API Layer - Django:</strong> URL Router, Middleware (JWT Auth + CORS), Controllers (Auth, File, Sync);</li>
+        <li><strong>Business Layer:</strong> Services (AuthService, FileService, SortFilterService), Security (JWT Provider, Password Hash);</li>
+        <li><strong>Data Layer:</strong> Models (User, FileMetadata), Serializers, PostgreSQL Database, File System (uploads/).</li>
+    </ul>
+    <p>Компоненти взаємодіють через REST API з використанням HTTP/HTTPS протоколу.</p>
+    <img src="діаграми/8.png" alt="Component Diagram">
+
+    <h2>7. Діаграма розгортання (Deployment Diagram)</h2>
+    <p>Показує фізичне розгортання системи:</p>
+    <ul>
+        <li><strong>Client Machine:</strong> Electron Desktop App (main.js + preload.js) з доступом до Local File System для синхронізації, Web Browser з File Manager Web App (HTML/CSS/Vanilla JS);</li>
+        <li><strong>Application Server:</strong> Django Application (Gunicorn WSGI Server з Multiple Workers), компоненти (Django WSGI Server, REST API Endpoints, JWT Auth Middleware, CORS Middleware, Business Logic Services Layer, Django ORM Models), File Storage (uploads/ directory);</li>
+        <li><strong>Database Server:</strong> PostgreSQL Database з таблицями users та file_metadata;</li>
+        <li><strong>Development Setup:</strong> Django dev server на порту 8000, PostgreSQL на порту 5433, Frontend served directly.</li>
+    </ul>
+    <p>Клієнти взаємодіють з сервером через REST API calls (JSON over HTTP).</p>
+    <img src="діаграми/9.png" alt="Deployment Diagram">
+
+    <h2>Висновки</h2>
+    <p>Розроблено повний набір UML-діаграм для системи управління файлами варіанту 06. Діаграми покривають усі аспекти системи: функціональні вимоги (Use Case), структуру класів (Class Diagrams), поведінку (Activity, Sequence, State) та архітектуру (Component, Deployment). Особливості варіанту 06 реалізовані: перегляд .txt та .jpg файлів, сортування за назвою, фільтрація .cpp та .png. Система підтримує спільний робочий простір, де всі бачать всі файли, але видаляти може лише власник.</p>
+
+</body>
+</html>

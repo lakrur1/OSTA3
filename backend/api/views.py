@@ -248,13 +248,11 @@ def delete_file(request, file_id):
 
 
 def edit_file(request, file_id):
-    """Replace existing file content and update editor info"""
+    """Replace existing file content and update editor info - anyone can edit in shared workspace"""
     try:
         file_meta = FileMetadata.objects.get(file_id=file_id)
 
-        # Check ownership
-        if file_meta.uploader_id != request.user_id:
-            return JsonResponse({'error': 'Access denied'}, status=403)
+        # No ownership check - anyone can edit in shared workspace
 
         file = request.FILES.get('file')
         if not file:
@@ -272,7 +270,7 @@ def edit_file(request, file_id):
             for chunk in file.chunks():
                 destination.write(chunk)
 
-        # Update metadata
+        # Update metadata - editor becomes current user
         file_meta.size = file.size
         file_meta.editor_id = request.user_id
         file_meta.editor_name = request.username

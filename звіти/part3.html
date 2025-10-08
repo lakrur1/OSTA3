@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Етап 3 - Веб-орієнтована версія</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14pt;
+            line-height: 1.5;
+            max-width: 210mm;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        h3 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        p {
+            text-align: justify;
+            margin-bottom: 10px;
+        }
+        .student {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        ul {
+            margin-left: 40px;
+            margin-bottom: 10px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 12pt;
+            overflow-x: auto;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12pt;
+        }
+    </style>
+</head>
+<body>
+    <h1>Індивідуальне завдання етап 3 звіт<br>Розробка веб-орієнтованої версії</h1>
+
+    <div class="student">
+        <strong>Виконавець:</strong> Єгор Крупєй
+    </div>
+
+    <h2>Мета роботи</h2>
+    <p>Розробка веб-версії системи управління файлами з використанням REST API архітектури, Django backend та vanilla JavaScript frontend.</p>
+
+    <h2>1. Обрана технологія та архітектура</h2>
+    <p>Обрано REST API архітектуру з наступним стеком:</p>
+
+    <p><strong>Backend:</strong></p>
+    <ul>
+        <li>Django 5.x – веб-фреймворк;</li>
+        <li>Django REST Framework – для REST API;</li>
+        <li>PostgreSQL – реляційна база даних;</li>
+        <li>JWT (HS512) – аутентифікація та авторизація;</li>
+        <li>SHA256 – хешування паролів;</li>
+        <li>CORS middleware – для cross-origin запитів.</li>
+    </ul>
+
+    <p><strong>Frontend:</strong></p>
+    <ul>
+        <li>Vanilla JavaScript (ES6+) – без frameworks;</li>
+        <li>HTML5/CSS3 – розмітка та стилізація;</li>
+        <li>Fetch API – для HTTP запитів;</li>
+        <li>localStorage – зберігання JWT токена.</li>
+    </ul>
+
+    <p><strong>Deployment:</strong></p>
+    <ul>
+        <li>Development: Django dev server (port 8000);</li>
+        <li>Production: Gunicorn WSGI + Nginx reverse proxy.</li>
+    </ul>
+
+    <h2>2. REST API Endpoints</h2>
+
+    <h3>2.1. Аутентифікація</h3>
+    <p><code>POST /api/auth/register</code></p>
+    <ul>
+        <li>Body: {username, password, email}</li>
+        <li>Response: {token, username}</li>
+    </ul>
+
+    <p><code>POST /api/auth/login</code></p>
+    <ul>
+        <li>Body: {username, password}</li>
+        <li>Response: {token, username}</li>
+    </ul>
+
+    <p><code>GET /api/auth/validate</code></p>
+    <ul>
+        <li>Headers: Authorization: Bearer &lt;token&gt;</li>
+        <li>Response: {valid: true, username}</li>
+    </ul>
+
+    <h3>2.2. Управління файлами</h3>
+    <p><code>GET /api/files?ascending=&lt;bool&gt;&types=&lt;type1&gt;&types=&lt;type2&gt;</code></p>
+    <ul>
+        <li>Response: Array&lt;FileMetadata&gt;</li>
+        <li>Підтримка сортування та фільтрації</li>
+    </ul>
+
+    <p><code>POST /api/files</code></p>
+    <ul>
+        <li>Body: FormData with file</li>
+        <li>Response: FileMetadata (201 Created)</li>
+    </ul>
+
+    <p><code>GET /api/files/&lt;id&gt;</code></p>
+    <ul>
+        <li>Headers: Accept: application/json – отримати metadata</li>
+        <li>Headers: Accept: */* – завантажити файл</li>
+        <li>Response: FileMetadata або file blob</li>
+    </ul>
+
+    <p><code>PUT /api/files/&lt;id&gt;</code></p>
+    <ul>
+        <li>Body: FormData with file</li>
+        <li>Response: FileMetadata (оновлений editor_name)</li>
+    </ul>
+
+    <p><code>DELETE /api/files/&lt;id&gt;</code></p>
+    <ul>
+        <li>Response: 204 No Content (лише для власника)</li>
+    </ul>
+
+    <h3>2.3. Синхронізація</h3>
+    <p><code>POST /api/sync/compare</code></p>
+    <ul>
+        <li>Body: {localFiles: [filenames]}</li>
+        <li>Response: {toUpload: [...], toDownload: [...]}</li>
+    </ul>
+
+    <p><code>GET /api/sync/files</code></p>
+    <ul>
+        <li>Response: Array&lt;FileMetadata&gt;</li>
+    </ul>
+
+    <h2>3. Backend реалізація</h2>
+
+    <h3>3.1. Middleware</h3>
+    <p>JWTAuthenticationMiddleware – перевірка токена для всіх ендпоінтів окрім /api/auth/*</p>
+    <ul>
+        <li>Декодування JWT токена;</li>
+        <li>Додавання request.user_id та request.username;</li>
+        <li>Повернення 401 при expired/invalid token.</li>
+    </ul>
+
+    <h3>3.2. Models</h3>
+    <p><strong>User:</strong></p>
+    <ul>
+        <li>user_id (AutoField, PK)</li>
+        <li>username (CharField, unique)</li>
+        <li>password (CharField, hashed SHA256)</li>
+        <li>email (CharField)</li>
+        <li>created_at (DateTimeField, auto)</li>
+    </ul>
+
+    <p><strong>FileMetadata:</strong></p>
+    <ul>
+        <li>file_id (AutoField, PK)</li>
+        <li>name (CharField)</li>
+        <li>type (CharField) – розширення файлу</li>
+        <li>size (BigIntegerField)</li>
+        <li>file_path (CharField)</li>
+        <li>created_date (DateTimeField, auto)</li>
+        <li>modified_date (DateTimeField, auto)</li>
+        <li>uploader_id, uploader_name</li>
+        <li>editor_id, editor_name</li>
+    </ul>
+
+    <h3>3.3. Views</h3>
+    <p>RESTful підхід:</p>
+    <ul>
+        <li>files_collection – GET (list), POST (upload);</li>
+        <li>file_resource – GET (download/metadata), DELETE, PUT (edit);</li>
+        <li>Всі операції повертають JSON або file response.</li>
+    </ul>
+
+    <h3>3.4. Business Logic</h3>
+    <ul>
+        <li>Валідація файлів: перевірка дублікатів імен;</li>
+        <li>Права доступу: власник може видаляти, всі можуть редагувати;</li>
+        <li>Спільний робочий простір: всі бачать всі файли;</li>
+        <li>Автоматичне оновлення modified_date при редагуванні;</li>
+        <li>Збереження файлів: uploads/{user_id}_{filename}.</li>
+    </ul>
+
+    <h2>4. Frontend реалізація</h2>
+
+    <h3>4.1. Модульна архітектура</h3>
+    <ul>
+        <li>app.js – головний клас App, ініціалізація;</li>
+        <li>auth.js – AuthUI клас для форм входу/реєстрації;</li>
+        <li>fileList.js – FileListUI клас для списку файлів та операцій;</li>
+        <li>fileViewer.js – FileViewer клас для модального перегляду;</li>
+        <li>sync.js – SyncUI клас для синхронізації (обмежений функціонал для web);</li>
+        <li>api.js – API клас з методами для всіх endpoints.</li>
+    </ul>
+
+    <h3>4.2. API клієнт</h3>
+    <p>Централізований API.request() метод:</p>
+    <ul>
+        <li>Автоматичне додавання JWT токена з localStorage;</li>
+        <li>Обробка 401 (автоматичний logout);</li>
+        <li>Content-Type negotiation (JSON/FormData);</li>
+        <li>Уніфікована обробка помилок.</li>
+    </ul>
+
+    <h3>4.3. UI компоненти</h3>
+    <p>Класи з responsibility:</p>
+    <ul>
+        <li>AuthUI: render форм, handleSubmit, toggleMode;</li>
+        <li>FileListUI: init, loadFiles, updateTable, handleFileSelect, setSortOrder, toggleFilter;</li>
+        <li>FileViewer: open, loadContent (різні типи файлів);</li>
+        <li>SyncUI: handleFolderSelect, renderAnalysis, startSync.</li>
+    </ul>
+
+    <h3>4.4. Інтерактивність</h3>
+    <ul>
+        <li>Drag-and-drop для завантаження файлів;</li>
+        <li>Динамічне оновлення UI без перезавантаження;</li>
+        <li>Active/Filter-active стани кнопок;</li>
+        <li>Modal windows для перегляду файлів.</li>
+    </ul>
+
+    <h2>5. Особливості веб-версії</h2>
+
+    <h3>5.1. Переваги REST API</h3>
+    <ul>
+        <li>Платформо-незалежність: доступ з будь-якого пристрою з браузером;</li>
+        <li>Простота інтеграції: стандартні HTTP методи та JSON;</li>
+        <li>Stateless: кожен запит незалежний, масштабованість;</li>
+        <li>Кешування: можливість кешувати GET запити;</li>
+        <li>Документованість: clear contract між frontend та backend.</li>
+    </ul>
+
+    <h3>5.2. Обмеження порівняно з десктопом</h3>
+    <ul>
+        <li>Немає прямого доступу до файлової системи;</li>
+        <li>Обмежена синхронізація: тільки upload, download вручну;</li>
+        <li>Залежність від браузера та його API;</li>
+        <li>Необхідність інтернет-з'єднання.</li>
+    </ul>
+
+    <h3>5.3. Безпека</h3>
+    <ul>
+        <li>JWT токени з expiration (7 днів);</li>
+        <li>CORS налаштування для контролю доступу;</li>
+        <li>Middleware для аутентифікації всіх запитів;</li>
+        <li>Хешування паролів (SHA256, потрібно замінити на bcrypt у production);</li>
+        <li>Валідація всіх вхідних даних на backend.</li>
+    </ul>
+
+    <h2>6. Структура проекту</h2>
+    <pre>backend/
+├── manage.py
+├── backend/
+│   ├── settings.py      # Django config
+│   ├── urls.py          # Root URL config
+│   └── wsgi.py          # WSGI entry
+└── api/
+    ├── models.py        # User, FileMetadata
+    ├── serializers.py   # DRF serializers
+    ├── views.py         # REST endpoints
+    ├── urls.py          # API routes
+    ├── middleware.py    # JWT middleware
+    └── tests.py         # Unit tests
+
+frontend/
+├── index.html
+├── css/
+│   └── style.css
+└── js/
+    ├── app.js
+    ├── auth.js
+    ├── fileList.js
+    ├── fileViewer.js
+    ├── sync.js
+    └── api.js</pre>
+
+    <h2>7. Deployment конфігурація</h2>
+
+    <p><strong>Development:</strong></p>
+    <ul>
+        <li>Django dev server: python manage.py runserver 0.0.0.0:8000</li>
+        <li>Frontend served directly через file:// протокол</li>
+        <li>PostgreSQL: localhost:5433</li>
+        <li>CORS enabled для локальної розробки</li>
+    </ul>
+
+    <h2>8. Порівняння REST vs інші технології</h2>
+
+    <p>REST API обрано через:</p>
+    <ul>
+        <li>Простоту розробки та тестування;</li>
+        <li>Широку підтримку та документацію;</li>
+        <li>Незалежність від конкретних технологій на клієнті;</li>
+        <li>Можливість використання з мобільних додатків.</li>
+    </ul>
+
+    <p>Альтернативи не обрані:</p>
+    <ul>
+        <li>GraphQL: надмірна складність для простої CRUD системи;</li>
+        <li>gRPC: потребує специфічних клієнтів, складніше debugати;</li>
+        <li>WebServices (SOAP): застарілий підхід, більше overhead.</li>
+    </ul>
+
+    <h2>Висновки</h2>
+    <p>Розроблено веб-версію системи управління файлами з використанням REST API архітектури. Backend на Django забезпечує RESTful endpoints для всіх операцій з аутентифікацією через JWT. Frontend на vanilla JavaScript надає повнофункціональний UI без залежностей від frameworks. Система підтримує всі вимоги варіанту 06: перегляд .txt та .jpg файлів, сортування за назвою, фільтрацію .cpp та .png. Веб-версія забезпечує універсальний доступ з будь-якого пристрою з браузером, але має обмеження порівняно з десктоп-версією у плані роботи з локальною файловою системою.</p>
+
+</body>
+</html>

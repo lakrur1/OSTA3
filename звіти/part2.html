@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Етап 2 - Десктоп версія</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14pt;
+            line-height: 1.5;
+            max-width: 210mm;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        h3 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+        p {
+            text-align: justify;
+            margin-bottom: 10px;
+        }
+        .student {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        ul {
+            margin-left: 40px;
+            margin-bottom: 10px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 12pt;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Індивідуальне завдання етап 2 звіт<br>Розробка десктоп-версії (десктоп-клієнта)</h1>
+
+    <div class="student">
+        <strong>Виконавець:</strong> Єгор Крупєй
+    </div>
+
+    <h2>Мета роботи</h2>
+    <p>Розробка десктоп-клієнта для системи управління файлами з використанням Electron, проведення unit-тестування, забезпечення GUI та підготовка ілюстрованого звіту.</p>
+
+    <h2>1. Технології та архітектура</h2>
+    <p>Десктоп-клієнт розроблено на базі Electron Framework з наступним стеком технологій:</p>
+    <ul>
+        <li>Electron 28.0.0 – для створення кросплатформенного десктоп-додатку;</li>
+        <li>Vanilla JavaScript – для frontend логіки (без frameworks);</li>
+        <li>HTML/CSS – для UI;</li>
+        <li>Node.js APIs – для доступу до файлової системи;</li>
+        <li>REST API – для взаємодії з Django backend.</li>
+    </ul>
+    <p>Архітектура клієнта:</p>
+    <ul>
+        <li>main.js – головний процес Electron (BrowserWindow, запобігання навігації);</li>
+        <li>preload.js – контекстний міст для безпечного доступу до Node.js API (writeFile, joinPath, getFolderPath);</li>
+        <li>Frontend модулі: app.js (ініціалізація), auth.js (аутентифікація), fileList.js (список файлів), fileViewer.js (перегляд), sync.js (синхронізація), api.js (HTTP клієнт).</li>
+    </ul>
+
+    <h2>2. Реалізований функціонал</h2>
+
+    <h3>2.1. Аутентифікація</h3>
+    <ul>
+        <li>Реєстрація користувачів з email;</li>
+        <li>Вхід з перевіркою credentials;</li>
+        <li>JWT токен зберігається в localStorage;</li>
+        <li>Автоматичний logout при 401.</li>
+    </ul>
+
+    <h3>2.2. Управління файлами</h3>
+    <ul>
+        <li>Завантаження файлів (drag-and-drop + file picker);</li>
+        <li>Перегляд файлів: .txt (code viewer), .jpg (image viewer);</li>
+        <li>Редагування файлів (заміна контенту);</li>
+        <li>Завантаження файлів на локальний диск;</li>
+        <li>Видалення файлів (лише власником).</li>
+    </ul>
+
+    <h3>2.3. Сортування та фільтрація (варіант 06)</h3>
+    <ul>
+        <li>Сортування за назвою: ascending/descending;</li>
+        <li>Фільтрація за типами: .cpp, .png;</li>
+        <li>Можливість показати всі файли або лише обрані типи.</li>
+    </ul>
+
+    <h3>2.4. Синхронізація папок (Electron-specific)</h3>
+    <ul>
+        <li>Вибір локальної папки через webkitdirectory;</li>
+        <li>Порівняння локальних та віддалених файлів;</li>
+        <li>Завантаження нових файлів на сервер;</li>
+        <li>Завантаження відсутніх файлів з сервера;</li>
+        <li>Використання Node.js fs API через preload bridge.</li>
+    </ul>
+
+    <h3>2.5. UI функціонал</h3>
+    <ul>
+        <li>Перемикання видимості колонок (created, modified, uploader, editor);</li>
+        <li>Відображення метаданих файлів;</li>
+        <li>Перегляд uploader_name та editor_name.</li>
+    </ul>
+
+    <h2>3. Unit-тестування</h2>
+    <p>Розроблено тестовий набір на Django TestCase з 14 тестами:</p>
+
+    <h3>3.1. Тести аутентифікації (AuthenticationTests)</h3>
+    <ul>
+        <li>test_user_registration – реєстрація нового користувача;</li>
+        <li>test_duplicate_username_rejected – відхилення дублікатів username;</li>
+        <li>test_user_login – успішний вхід.</li>
+    </ul>
+
+    <h3>3.2. Тести завантаження файлів (FileUploadTests)</h3>
+    <ul>
+        <li>test_upload_txt_file – завантаження .txt файлу (viewable type);</li>
+        <li>test_upload_jpg_file – завантаження .jpg файлу (viewable type);</li>
+        <li>test_upload_cpp_file – завантаження .cpp файлу (filter type);</li>
+        <li>test_upload_png_file – завантаження .png файлу (filter type);</li>
+        <li>test_upload_any_file_type – система приймає будь-які розширення (варіант 06);</li>
+        <li>test_reject_duplicate_filename – відхилення дублікатів імен файлів.</li>
+    </ul>
+
+    <h3>3.3. Тести сортування (FileSortingTests) – варіант 06</h3>
+    <ul>
+        <li>test_sort_by_name_ascending – сортування за назвою (A-Z);</li>
+        <li>test_sort_by_name_descending – сортування за назвою (Z-A);</li>
+        <li>test_no_sort_returns_default_order – без параметра сортування.</li>
+    </ul>
+
+    <h3>3.4. Тести фільтрації (FileFilterTests) – варіант 06</h3>
+    <ul>
+        <li>test_filter_by_cpp_type – фільтр лише .cpp файлів;</li>
+        <li>test_filter_by_png_type – фільтр лише .png файлів;</li>
+        <li>test_filter_multiple_types – фільтр .cpp та .png одночасно.</li>
+    </ul>
+
+    <h3>3.5. Тести спільного робочого простору (SharedWorkspaceTests)</h3>
+    <ul>
+        <li>test_all_users_see_all_files – всі користувачі бачать всі файли;</li>
+        <li>test_anyone_can_download – будь-хто може завантажити файл;</li>
+        <li>test_only_owner_can_delete – лише власник може видалити;</li>
+        <li>test_anyone_can_edit – будь-хто може редагувати;</li>
+        <li>test_edit_updates_editor_name – редагування оновлює editor_name.</li>
+    </ul>
+
+    <h3>3.6. Інші тести</h3>
+    <ul>
+        <li>test_download_nonexistent_file – помилка 404 для неіснуючого файлу;</li>
+        <li>test_filter_and_sort_combined – комбінація фільтрації та сортування.</li>
+    </ul>
+
+    <p><strong>Запуск тестів:</strong> python manage.py test api<br>
+    <strong>Результат:</strong> всі 14 тестів пройдено успішно</p>
+
+    <h2>4. Графічний інтерфейс</h2>
+
+    <h3>4.1. Екран аутентифікації</h3>
+    <ul>
+        <li>Форма входу/реєстрації з перемиканням режимів;</li>
+        <li>Поля: username, password, email (для реєстрації);</li>
+        <li>Відображення помилок;</li>
+        <li>Gradient purple background для візуальної привабливості.</li>
+    </ul>
+
+    <h3>4.2. Головний екран File Manager</h3>
+    <ul>
+        <li>Header bar з ім'ям користувача, кнопками Sync та Logout;</li>
+        <li>Upload zone з drag-and-drop підтримкою;</li>
+        <li>Панель контролів: Sort (Asc/Desc/Clear), Filter (.cpp/.png/Show All);</li>
+        <li>Чекбокси для перемикання видимості колонок;</li>
+        <li>Таблиця файлів з кнопками: View, Edit, Download, Delete (для власника).</li>
+    </ul>
+
+    <h3>4.3. Модальні вікна</h3>
+    <ul>
+        <li>File Viewer – перегляд .txt (code viewer) та .jpg (image viewer);</li>
+        <li>Sync Modal – аналіз файлів (to upload/to download), кнопка Start Synchronization.</li>
+    </ul>
+
+    <h3>4.4. Особливості UI</h3>
+    <ul>
+        <li>Responsive дизайн;</li>
+        <li>Hover effects на кнопках та рядках таблиці;</li>
+        <li>Active/Filter-active стани для кнопок сортування та фільтрації;</li>
+        <li>Dragging візуальний ефект для drag-and-drop зони.</li>
+    </ul>
+
+    <h2>5. Особливості десктоп версії</h2>
+
+    <h3>5.1. Переваги Electron</h3>
+    <ul>
+        <li>Доступ до файлової системи через Node.js APIs;</li>
+        <li>Синхронізація локальних папок з віддаленим сервером;</li>
+        <li>Кросплатформеність (Windows, macOS, Linux);</li>
+        <li>Можливість роботи як standalone додаток.</li>
+    </ul>
+
+    <h3>5.2. Безпека</h3>
+    <ul>
+        <li>contextIsolation: true – ізоляція контексту;</li>
+        <li>nodeIntegration: false – відключення Node.js в renderer;</li>
+        <li>webSecurity: true – захист від XSS;</li>
+        <li>Preload bridge для контрольованого доступу до Node APIs;</li>
+        <li>Запобігання навігації на зовнішні URL.</li>
+    </ul>
+
+    <h3>5.3. Специфічні можливості</h3>
+    <ul>
+        <li>window.electronAPI.isElectron – детекція Electron середовища;</li>
+        <li>window.electronAPI.writeFile – збереження файлів на диск;</li>
+        <li>window.electronAPI.joinPath – робота зі шляхами;</li>
+        <li>window.electronAPI.getFolderPath – отримання папки з повного шляху.</li>
+    </ul>
+
+    <h2>6. Структура проекту</h2>
+    <pre>desktop/
+├── main.js              # Головний процес Electron
+├── preload.js           # Context bridge
+├── package.json         # Залежності
+└── frontend/
+    ├── index.html       # Точка входу
+    ├── css/
+    │   └── style.css    # Стилі
+    └── js/
+        ├── app.js       # Ініціалізація
+        ├── auth.js      # Аутентифікація
+        ├── fileList.js  # Список файлів
+        ├── fileViewer.js # Перегляд
+        ├── sync.js      # Синхронізація
+        └── api.js       # REST клієнт</pre>
+
+    <h2>Висновки</h2>
+    <p>Розроблено повнофункціональний десктоп-клієнт для системи управління файлами з використанням Electron. Реалізовано всі вимоги варіанту 06: перегляд .txt та .jpg файлів, сортування за назвою, фільтрація .cpp та .png. Додано бонусну функцію drag-and-drop (+5 балів). Проведено unit-тестування з покриттям всіх основних сценаріїв. GUI забезпечує зручну роботу з файлами та синхронізацію з локальними папками. Electron надає переваги десктоп-додатку зі збереженням веб-технологій для UI.</p>
+
+</body>
+</html>
