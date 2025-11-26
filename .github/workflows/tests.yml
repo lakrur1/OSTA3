@@ -34,10 +34,10 @@ jobs:
         run: pip install -r requirements.txt
         
       - name: Run migrations
-        run: python manage.py migrate --run-syncdb
+        run: python manage.py migrate
       
       - name: Run tests
-        run: python manage.py test --keepdb
+        run: python manage.py test
       
       - name: Upload test logs
         if: always()
