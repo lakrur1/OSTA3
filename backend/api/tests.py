@@ -17,7 +17,7 @@ class BaseTestCase(TestCase):
         # Temporarily enable managed to create tables
         User._meta.managed = True
         FileMetadata._meta.managed = True
-        call_command('migrate', verbosity=0, run_syncdb=True)
+        call_command('migrate', verbosity=0)
 
     @classmethod
     def tearDownClass(cls):
