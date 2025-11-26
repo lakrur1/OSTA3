@@ -7,22 +7,40 @@ from .models import User, FileMetadata
 import hashlib
 import json
 
-
 class BaseTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        # Temporarily enable managed to create tables
-        User._meta.managed = True
-        FileMetadata._meta.managed = True
-        call_command('migrate', verbosity=0)
+        from django.db import connection
+        cursor = connection.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username VARCHAR(50) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(100),
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS file_metadata (
+                file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(255) NOT NULL,
+                type VARCHAR(10),
+                size BIGINT,
+                file_path VARCHAR(500),
+                created_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                modified_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                uploader_id BIGINT,
+                uploader_name VARCHAR(100),
+                editor_id BIGINT,
+                editor_name VARCHAR(100)
+            )
+        ''')
 
     @classmethod
     def tearDownClass(cls):
-        # Restore managed = False
-        User._meta.managed = False
-        FileMetadata._meta.managed = False
         super().tearDownClass()
 
 
