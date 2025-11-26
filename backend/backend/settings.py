@@ -47,8 +47,13 @@ if os.environ.get('CI'):
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': ':memory:',
+            'TEST': {
+                'NAME': ':memory:',
+            },
         }
     }
+    DATABASE_ROUTERS = []
+    DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 else:
     DATABASES = {
         'default': {
@@ -85,3 +90,4 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 
 
 os.makedirs(MEDIA_ROOT, exist_ok=True)
+
