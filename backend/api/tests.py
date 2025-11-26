@@ -9,7 +9,6 @@ import json
 
 
 class BaseTestCase(TestCase):
-    """Base test case that creates tables for unmanaged models"""
 
     @classmethod
     def setUpClass(cls):
@@ -33,7 +32,7 @@ class AuthenticationTests(BaseTestCase):
     def setUp(self):
         self.client = Client()
 
-     def test_user_registration(self):
+    def test_user_registration(self):
         """Test 1: User can register successfully"""
         response = self.client.post('/api/auth/register',
                                     json.dumps({
