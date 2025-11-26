@@ -32,9 +32,12 @@ jobs:
       
       - name: Install dependencies
         run: pip install -r requirements.txt
+        
+      - name: Run migrations
+        run: python manage.py migrate --run-syncdb
       
       - name: Run tests
-        run: python manage.py test
+        run: python manage.py test --keepdb
       
       - name: Upload test logs
         if: always()
