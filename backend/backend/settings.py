@@ -42,17 +42,24 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'FileManager',
-        'USER': 'postgres',
-        'PASSWORD': 'newpassword',
-        'HOST': 'localhost',
-        'PORT': '5433',
+if os.environ.get('CI'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'FileManager',
+            'USER': 'postgres',
+            'PASSWORD': 'newpassword',
+            'HOST': 'localhost',
+            'PORT': '5433',
+        }
+    }
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -75,5 +82,6 @@ JWT_EXPIRATION = timedelta(days=7)
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads')
 MEDIA_URL = '/media/'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
 
 os.makedirs(MEDIA_ROOT, exist_ok=True)
