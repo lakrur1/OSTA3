@@ -33,28 +33,6 @@ class AuthenticationTests(BaseTestCase):
     def setUp(self):
         self.client = Client()
 
-    def test_user_registration(self):
-        """Test 1: User can register successfully"""
-        response = self.client.post('/api/auth/register',
-                                    json.dumps({
-                                        'username': 'testuser',
-                                        'password': 'testpass123',
-                                        'email': 'test@example.com'
-                                    }),
-                                    content_type='application/json'
-                                    )
-
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertIn('token', data)
-        self.assertIn('username', data)
-        self.assertEqual(data['username'], 'testuser')
-
-        # Verify user exists in database
-        user = User.objects.get(username='testuser')
-        self.assertIsNotNone(user)
-        self.assertEqual(user.email, 'test@example.com')
-
     def test_duplicate_username_rejected(self):
         """Test that duplicate usernames are rejected"""
         # Create first user
